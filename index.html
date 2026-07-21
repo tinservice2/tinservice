@@ -28,74 +28,57 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 20px;
             border-bottom: 1px solid var(--border);
-            padding-bottom: 15px;
-            margin-bottom: 25px;
+            padding-bottom: 10px;
         }
         h1 {
-            margin: 0;
             font-size: 1.5rem;
             color: var(--accent);
+            margin: 0;
         }
-        .nav-buttons {
-            display: flex;
-            gap: 10px;
-        }
-        button, input {
+        .nav-btn {
             background-color: var(--card-bg);
             color: var(--text-color);
             border: 1px solid var(--border);
-            padding: 10px 16px;
-            border-radius: 8px;
-            font-size: 1rem;
-        }
-        button {
+            padding: 8px 16px;
+            border-radius: 6px;
             cursor: pointer;
             font-weight: 600;
-            transition: all 0.2s;
         }
-        button:hover {
+        .nav-btn:hover {
             background-color: var(--border);
-            border-color: var(--accent);
         }
-        .section {
-            display: none;
+        .card {
             background-color: var(--card-bg);
             border: 1px solid var(--border);
+            border-radius: 8px;
             padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
         }
-        .active {
-            display: block;
-        }
-        .card-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
-            margin-top: 15px;
-        }
-        .info-card {
+        input {
             background-color: var(--bg-color);
             border: 1px solid var(--border);
-            padding: 15px;
-            border-radius: 8px;
-        }
-        .info-card h3 {
-            margin-top: 0;
-            color: var(--accent);
-            font-size: 1.1rem;
-        }
-        .form-group {
-            margin-top: 15px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        input[type="text"] {
+            color: var(--text-color);
+            padding: 10px;
+            border-radius: 6px;
             width: 100%;
             max-width: 300px;
-            text-transform: uppercase;
+            font-size: 1rem;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+        }
+        .status-dot {
+            height: 10px;
+            width: 10px;
+            background-color: #22c55e;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+        }
+        .hidden {
+            display: none;
         }
     </style>
 </head>
@@ -104,44 +87,41 @@
     <div class="container">
         <header>
             <h1>Tin Service - Panel</h1>
-            <div class="nav-buttons">
-                <button onclick="mostrarSeccion('inicio')">Inicio</button>
-                <button onclick="verificarPerfil()">Perfil del taller</button>
+            <div>
+                <button class="nav-btn" onclick="mostrarSeccion('inicio')">Inicio</button>
+                <button class="nav-btn" onclick="pedirPin()">Perfil del taller</button>
             </div>
         </header>
 
         <!-- SECCIÓN INICIO -->
-        <div id="seccion-inicio" class="section active">
+        <div id="seccion-inicio" class="card">
             <h2>Panel Principal</h2>
             <p>Bienvenido al sistema de gestión de Tin Service. Selecciona una opción arriba para comenzar.</p>
             
-            <div class="form-group">
-                <label for="patenteInput"><strong>Ingrese Patente del Auto:</strong></label>
-                <input type="text" id="patenteInput" placeholder="Ej: AB123CD o ab 123 cd" oninput="formatearPatente(this)">
-                <small style="color: var(--text-muted);">Formato automático: 2 letras, 3 números, 2 letras (Ej. AB 123 CD)</small>
-            </div>
+            <label for="patente">Ingrese Patente del Auto:</label><br>
+            <input type="text" id="patente" placeholder="EJ: AB123CD" oninput="formatearPatente(this)">
+            <p style="font-size: 0.85rem; color: var(--text-muted);">Formato automático: 2 letras, 3 números, 2 letras (Ej. AB 123 CD)</p>
 
-            <div class="card-grid">
-                <div class="info-card">
-                    <h3>Estado del Taller</h3>
-                    <p>🟢 Sistema Operativo</p>
-                </div>
+            <div style="background-color: var(--bg-color); padding: 15px; border-radius: 6px; border: 1px solid var(--border); margin-top: 20px;">
+                <h3>Estado del Taller</h3>
+                <p><span class="status-dot"></span>Sistema Operativo</p>
             </div>
         </div>
 
-        <!-- SECCIÓN PERFIL DEL TALLER (PROTEGIDA) -->
-        <div id="seccion-perfil" class="section">
+        <!-- SECCIÓN PERFIL DEL TALLER -->
+        <div id="seccion-perfil" class="card hidden">
             <h2>Perfil del Taller / Configuración</h2>
-            <p>Información privada y configuración interna de Tin Service.</p>
-            <div class="card-grid">
-                <div class="info-card">
+            <p style="color: var(--text-muted);">Información privada y configuración interna de Tin Service.</p>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
+                <div style="background-color: var(--bg-color); padding: 15px; border-radius: 6px; border: 1px solid var(--border);">
                     <h3>Datos Fiscales y Contacto</h3>
                     <p><strong>Taller:</strong> Tin Service</p>
-                    <p><strong>Detalle del trabajo / Servicio / Programación:</strong> Activo</p>
+                    <p><strong>Detalle del trabajo:</strong> Activo</p>
                 </div>
-                <div class="info-card">
+                <div style="background-color: var(--bg-color); padding: 15px; border-radius: 6px; border: 1px solid var(--border);">
                     <h3>Seguridad</h3>
-                    <p>🔒 Acceso protegido por PIN exclusivo.</p>
+                    <p>🔒 Acceso protegido por PIN exclusivo desbloqueado correctamente.</p>
                 </div>
             </div>
         </div>
@@ -149,40 +129,34 @@
 
     <script>
         function mostrarSeccion(seccion) {
-            document.getElementById('seccion-inicio').classList.remove('active');
-            document.getElementById('seccion-perfil').classList.remove('active');
-
+            document.getElementById('seccion-inicio').classList.add('hidden');
+            document.getElementById('seccion-perfil').classList.add('hidden');
+            
             if (seccion === 'inicio') {
-                document.getElementById('seccion-inicio').classList.add('active');
+                document.getElementById('seccion-inicio').classList.remove('hidden');
             } else if (seccion === 'perfil') {
-                document.getElementById('seccion-perfil').classList.add('active');
+                document.getElementById('seccion-perfil').classList.remove('hidden');
             }
         }
 
-        function verificarPerfil() {
-            let intento = prompt("Ingrese el PIN de acceso para ver el Perfil del Taller:");
-            if (intento === "111274") {
+        function pedirPin() {
+            let pinIngresado = prompt("Por favor, ingrese el PIN de seguridad:");
+            if (pinIngresado === "111274") {
                 mostrarSeccion('perfil');
-            } else if (intento !== null) {
+            } else if (pinIngresado !== null) {
                 alert("PIN incorrecto. Acceso denegado.");
             }
         }
 
         function formatearPatente(input) {
-            let v = input.value.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
-            let resultado = "";
-
-            if (v.length > 0) {
-                resultado += v.substring(0, 2);
-            }
-            if (v.length > 2) {
-                resultado += " " + v.substring(2, 5);
-            }
-            if (v.length > 5) {
-                resultado += " " + v.substring(5, 7);
-            }
-
-            input.value = resultado;
+            let v = input.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+            let formato = "";
+            
+            if (v.length > 0) formato += v.substring(0, 2);
+            if (v.length > 2) formato += " " + v.substring(2, 5);
+            if (v.length > 5) formato += " " + v.substring(5, 7);
+            
+            input.value = formato.trim();
         }
     </script>
 </body>
