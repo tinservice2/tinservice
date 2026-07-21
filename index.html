@@ -91,17 +91,17 @@
             <h1>Tin Service - Panel</h1>
             <div class="nav-buttons">
                 <button onclick="mostrarSeccion('inicio')">Inicio</button>
-                <button onclick="pedirPin()">Perfil del taller</button>
+                <button onclick="mostrarSeccion('perfil')">Perfil del taller</button>
             </div>
         </header>
 
+        <!-- SECCIÓN INICIO -->
         <div id="seccion-inicio" class="card">
             <h2>Panel Principal</h2>
             <p>Bienvenido al sistema de gestión de Tin Service. Selecciona una opción arriba para comenzar.</p>
             
             <label for="patente">Ingrese Patente del Auto:</label><br>
-            <input type="text" id="patente" placeholder="AB 123 CD" maxlength="9" oninput="formatearPatente(this)">
-            <p style="font-size: 0.85rem; color: var(--text-muted);">Formato automático: 2 letras, 3 números, 2 letras (Ej. AB 123 CD)</p>
+            <input type="text" id="patente" placeholder="AB 123 CD" maxlength="9">
             
             <div style="margin-top: 25px; padding-top: 15px; border-top: 1px solid var(--border);">
                 <h3>Estado del Taller</h3>
@@ -109,6 +109,7 @@
             </div>
         </div>
 
+        <!-- SECCIÓN PERFIL DEL TALLER -->
         <div id="seccion-perfil" class="card hidden">
             <h2>Perfil del Taller / Configuración</h2>
             <p style="color: var(--text-muted);">Información privada y configuración interna de Tin Service.</p>
@@ -121,7 +122,7 @@
                 </div>
                 <div style="background-color: var(--bg-color); padding: 15px; border-radius: 8px; border: 1px solid var(--border);">
                     <h3>Seguridad</h3>
-                    <p>🔒 Acceso protegido por PIN exclusivo desbloqueado correctamente.</p>
+                    <p>Acceso al sistema configurado correctamente.</p>
                 </div>
             </div>
         </div>
@@ -137,26 +138,6 @@
             } else if (seccion === 'perfil') {
                 document.getElementById('seccion-perfil').classList.remove('hidden');
             }
-        }
-
-        function pedirPin() {
-            let pinIngresado = prompt("Por favor, ingrese el PIN de seguridad:");
-            if (pinIngresado === "111274") {
-                mostrarSeccion('perfil');
-            } else if (pinIngresado !== null) {
-                alert("PIN incorrecto. Acceso denegado.");
-            }
-        }
-
-        function formatearPatente(input) {
-            let v = input.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
-            let formato = "";
-
-            if (v.length > 0) formato += v.substring(0, 2);
-            if (v.length > 2) formato += " " + v.substring(2, 5);
-            if (v.length > 5) formato += " " + v.substring(5, 7);
-
-            input.value = formato.trim();
         }
     </script>
 </body>
