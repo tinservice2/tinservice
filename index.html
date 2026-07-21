@@ -28,57 +28,59 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
             border-bottom: 1px solid var(--border);
-            padding-bottom: 10px;
+            padding-bottom: 15px;
         }
         h1 {
             font-size: 1.5rem;
             color: var(--accent);
             margin: 0;
         }
-        .nav-btn {
+        .nav-buttons button {
             background-color: var(--card-bg);
             color: var(--text-color);
             border: 1px solid var(--border);
             padding: 8px 16px;
             border-radius: 6px;
             cursor: pointer;
-            font-weight: 600;
+            margin-left: 10px;
+            font-weight: 500;
         }
-        .nav-btn:hover {
-            background-color: var(--border);
+        .nav-buttons button:hover {
+            border-color: var(--accent);
         }
         .card {
             background-color: var(--card-bg);
             border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 20px;
+            border-radius: 10px;
+            padding: 25px;
             margin-bottom: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
-        input {
+        .hidden {
+            display: none !important;
+        }
+        input[type="text"] {
             background-color: var(--bg-color);
             border: 1px solid var(--border);
             color: var(--text-color);
             padding: 10px;
             border-radius: 6px;
+            font-size: 1.1rem;
             width: 100%;
             max-width: 300px;
-            font-size: 1rem;
-            margin-top: 5px;
-            margin-bottom: 15px;
-            box-sizing: border-box;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
         }
-        .status-dot {
-            height: 10px;
+        .status-indicator {
+            display: inline-block;
             width: 10px;
+            height: 10px;
             background-color: #22c55e;
             border-radius: 50%;
-            display: inline-block;
-            margin-right: 5px;
-        }
-        .hidden {
-            display: none;
+            margin-right: 8px;
         }
     </style>
 </head>
@@ -87,39 +89,37 @@
     <div class="container">
         <header>
             <h1>Tin Service - Panel</h1>
-            <div>
-                <button class="nav-btn" onclick="mostrarSeccion('inicio')">Inicio</button>
-                <button class="nav-btn" onclick="pedirPin()">Perfil del taller</button>
+            <div class="nav-buttons">
+                <button onclick="mostrarSeccion('inicio')">Inicio</button>
+                <button onclick="pedirPin()">Perfil del taller</button>
             </div>
         </header>
 
-        <!-- SECCIÓN INICIO -->
         <div id="seccion-inicio" class="card">
             <h2>Panel Principal</h2>
             <p>Bienvenido al sistema de gestión de Tin Service. Selecciona una opción arriba para comenzar.</p>
             
             <label for="patente">Ingrese Patente del Auto:</label><br>
-            <input type="text" id="patente" placeholder="EJ: AB123CD" oninput="formatearPatente(this)">
+            <input type="text" id="patente" placeholder="AB 123 CD" maxlength="9" oninput="formatearPatente(this)">
             <p style="font-size: 0.85rem; color: var(--text-muted);">Formato automático: 2 letras, 3 números, 2 letras (Ej. AB 123 CD)</p>
-
-            <div style="background-color: var(--bg-color); padding: 15px; border-radius: 6px; border: 1px solid var(--border); margin-top: 20px;">
+            
+            <div style="margin-top: 25px; padding-top: 15px; border-top: 1px solid var(--border);">
                 <h3>Estado del Taller</h3>
-                <p><span class="status-dot"></span>Sistema Operativo</p>
+                <p><span class="status-indicator"></span>Sistema Operativo</p>
             </div>
         </div>
 
-        <!-- SECCIÓN PERFIL DEL TALLER -->
         <div id="seccion-perfil" class="card hidden">
             <h2>Perfil del Taller / Configuración</h2>
             <p style="color: var(--text-muted);">Información privada y configuración interna de Tin Service.</p>
             
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
-                <div style="background-color: var(--bg-color); padding: 15px; border-radius: 6px; border: 1px solid var(--border);">
+                <div style="background-color: var(--bg-color); padding: 15px; border-radius: 8px; border: 1px solid var(--border);">
                     <h3>Datos Fiscales y Contacto</h3>
                     <p><strong>Taller:</strong> Tin Service</p>
                     <p><strong>Detalle del trabajo:</strong> Activo</p>
                 </div>
-                <div style="background-color: var(--bg-color); padding: 15px; border-radius: 6px; border: 1px solid var(--border);">
+                <div style="background-color: var(--bg-color); padding: 15px; border-radius: 8px; border: 1px solid var(--border);">
                     <h3>Seguridad</h3>
                     <p>🔒 Acceso protegido por PIN exclusivo desbloqueado correctamente.</p>
                 </div>
@@ -131,7 +131,7 @@
         function mostrarSeccion(seccion) {
             document.getElementById('seccion-inicio').classList.add('hidden');
             document.getElementById('seccion-perfil').classList.add('hidden');
-            
+
             if (seccion === 'inicio') {
                 document.getElementById('seccion-inicio').classList.remove('hidden');
             } else if (seccion === 'perfil') {
@@ -151,11 +151,11 @@
         function formatearPatente(input) {
             let v = input.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
             let formato = "";
-            
+
             if (v.length > 0) formato += v.substring(0, 2);
             if (v.length > 2) formato += " " + v.substring(2, 5);
             if (v.length > 5) formato += " " + v.substring(5, 7);
-            
+
             input.value = formato.trim();
         }
     </script>
