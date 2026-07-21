@@ -14,6 +14,7 @@
             --text-muted: #94a3b8;
             --border: #2a3650;
             --success: #10b981;
+            --danger: #ef4444;
         }
         * {
             box-sizing: border-box;
@@ -75,7 +76,7 @@
             color: var(--text-muted);
             font-weight: 500;
         }
-        input, textarea {
+        input, textarea, select {
             width: 100%;
             padding: 12px;
             background: #0b0f19;
@@ -84,7 +85,7 @@
             color: var(--text-main);
             font-size: 1rem;
         }
-        input:focus, textarea:focus {
+        input:focus, textarea:focus, select:focus {
             outline: none;
             border-color: var(--accent);
         }
@@ -113,6 +114,16 @@
         .btn-secondary:hover {
             background: var(--border);
             color: var(--text-main);
+        }
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid var(--danger);
+            color: var(--danger);
+            margin-top: 10px;
+        }
+        .btn-danger:hover {
+            background: var(--danger);
+            color: white;
         }
         .hidden {
             display: none !important;
@@ -176,7 +187,18 @@
             Consultá el historial clínico de tu vehículo o ingresá como administrador del taller.
         </p>
         <button onclick="cambiarVista('cliente')" style="margin-bottom: 12px;">🚗 Consultar Historial de mi Auto</button>
-        <button onclick="cambiarVista('admin')" class="btn-secondary">🛠️ Panel de Taller (Administrador)</button>
+        <button onclick="cambiarVista('loginAdmin')" class="btn-secondary">🛠️ Panel de Taller (Administrador)</button>
+    </div>
+
+    <!-- VISTA LOGIN ADMINISTRADOR -->
+    <div id="vistaLoginAdmin" class="card hidden">
+        <h2>Acceso Administrador</h2>
+        <div class="form-group">
+            <label>Contraseña del Taller:</label>
+            <input type="password" id="inputAdminPass" placeholder="Ingresá la contraseña maestra">
+        </div>
+        <button onclick="verificarLoginAdmin()">Ingresar al Panel</button>
+        <button onclick="cambiarVista('principal')" class="btn-secondary">Volver al inicio</button>
     </div>
 
     <!-- VISTA LOGIN CLIENTE -->
@@ -202,7 +224,7 @@
         <h3 style="font-size: 1rem; color: var(--accent); margin-bottom: 8px;">Trabajos Realizados:</h3>
         <div style="overflow-x: auto;" id="tablaHistorialContainer"></div>
 
-        <a href="https://wa.me/?text=Hola%20Tin%20Service,%20quiero%20hacer%20una%20consulta%20sobre%20mi%20auto." target="_blank" class="whatsapp-btn">
+        <a id="whatsappLinkCliente" href="#" target="_blank" class="whatsapp-btn">
             💬 Consultar por WhatsApp
         </a>
         <button onclick="cambiarVista('cliente')" class="btn-secondary" style="margin-top: 10px;">Cerrar Sesión</button>
@@ -210,7 +232,9 @@
 
     <!-- VISTA PANEL TALLER (ADMIN) -->
     <div id="vistaAdmin" class="card hidden">
-        <h2>Panel de Carga (Taller)</h2>
+        <h2 id="tituloAdminForm">Panel de Carga (Taller)</h2>
+        <input type="hidden" id="adminModoEdicion" value="nuevo">
+        
         <div class="form-group">
             <label>Patente del Auto:</label>
             <input type="text" id="adminPatente" placeholder="Ej: AF123ZZ" style="text-transform: uppercase;">
@@ -228,6 +252,10 @@
             <input type="text" id="adminModelo" placeholder="Ej: Volkswagen Gol 1.6">
         </div>
         <div class="form-group">
+            <label>Teléfono (WhatsApp, opcional):</label>
+            <input type="text" id="adminTelefono" placeholder="Ej: 5491123456789">
+        </div>
+        <div class="form-group">
             <label>Fecha del trabajo:</label>
             <input type="date" id="adminFecha">
         </div>
@@ -240,17 +268,31 @@
             <textarea id="adminDetalle" rows="3" placeholder="Ej: Escaneo computarizado, programación de llave y reparación de BCM."></textarea>
         </div>
         <button onclick="guardarTrabajo()">💾 Guardar en el Historial</button>
+        <button onclick="cambiarVista('listaAutos')" class="btn-secondary">📋 Ver Base de Datos / Autos</button>
+        <button onclick="cambiarVista('principal')" class="btn-secondary">Volver al inicio</button>
+    </div>
+
+    <!-- VISTA LISTA DE AUTOS (ADMIN) -->
+    <div id="vistaListaAutos" class="card hidden">
+        <h2>Gestión de Vehículos</h2>
+        <p style="color: var(--text-muted); margin-bottom: 15px; font-size: 0.9rem;">Seleccioná un vehículo para editar sus datos, agregar un nuevo trabajo o eliminarlo.</p>
+        <div style="overflow-x: auto;" id="tablaAutosContainer"></div>
+        <button onclick="limpiarFormularioAdmin(); cambiarVista('admin');" style="margin-top: 15px;">➕ Cargar Nuevo Trabajo / Auto</button>
         <button onclick="cambiarVista('principal')" class="btn-secondary">Volver al inicio</button>
     </div>
 </div>
 
 <script>
-    // Base de datos de ejemplo en memoria
-    let baseDatosAutos = {
+    // 🔐 CONTRASEÑA MAESTRA DEL TALLER (Cambiala aquí si deseas otra)
+    const PASSWORD_ADMIN = "admin123";
+
+    // Base de datos con persistencia en localStorage
+    let baseDatosAutos = JSON.parse(localStorage.getItem('tinService_db')) || {
         "AF123ZZ": {
             password: "123",
             cliente: "Martín Gómez",
             modelo: "Peugeot 308 1.6",
+            telefono: "",
             historial: [
                 { fecha: "2026-03-10", km: "72.000 km", detalle: "Programación de llave con chip y clonación de telecomando." },
                 { fecha: "2026-06-05", km: "76.500 km", detalle: "Diagnóstico computarizado y reparación de tablero." }
@@ -258,14 +300,23 @@
         }
     };
 
+    function guardarEnStorage() {
+        localStorage.setItem('tinService_db', JSON.stringify(baseDatosAutos));
+    }
+
     function cambiarVista(vista) {
         document.getElementById('vistaPrincipal').classList.add('hidden');
+        document.getElementById('vistaLoginAdmin').classList.add('hidden');
         document.getElementById('vistaLoginCliente').classList.add('hidden');
         document.getElementById('vistaResultadoCliente').classList.add('hidden');
         document.getElementById('vistaAdmin').classList.add('hidden');
+        document.getElementById('vistaListaAutos').classList.add('hidden');
 
         if(vista === 'principal') {
             document.getElementById('vistaPrincipal').classList.remove('hidden');
+        } else if(vista === 'loginAdmin') {
+            document.getElementById('vistaLoginAdmin').classList.remove('hidden');
+            document.getElementById('inputAdminPass').value = '';
         } else if(vista === 'cliente') {
             document.getElementById('vistaLoginCliente').classList.remove('hidden');
             document.getElementById('loginPatente').value = '';
@@ -274,8 +325,19 @@
             document.getElementById('vistaResultadoCliente').classList.remove('hidden');
         } else if(vista === 'admin') {
             document.getElementById('vistaAdmin').classList.remove('hidden');
-            // Poner fecha de hoy por defecto
             document.getElementById('adminFecha').valueAsDate = new Date();
+        } else if(vista === 'listaAutos') {
+            document.getElementById('vistaListaAutos').classList.remove('hidden');
+            renderizarListaAutos();
+        }
+    }
+
+    function verificarLoginAdmin() {
+        let passIngresada = document.getElementById('inputAdminPass').value.trim();
+        if (passIngresada === PASSWORD_ADMIN) {
+            cambiarVista('listaAutos'); // Entra directamente a la lista o panel de administración
+        } else {
+            alert("Contraseña de administrador incorrecta.");
         }
     }
 
@@ -298,6 +360,10 @@
             });
             htmlTabla += `</tbody></table>`;
             document.getElementById('tablaHistorialContainer').innerHTML = htmlTabla;
+
+            let textoWp = encodeURIComponent(`Hola Tin Service, quiero hacer una consulta sobre mi auto (${patente} - ${auto.modelo}).`);
+            let linkWp = auto.telefono ? `https://wa.me/${auto.telefono}?text=${textoWp}` : `https://wa.me/?text=${textoWp}`;
+            document.getElementById('whatsappLinkCliente').href = linkWp;
         } else {
             alert("Patente o contraseña incorrecta.\n(Prueba usar la patente de ejemplo: AF123ZZ y contraseña: 123)");
         }
@@ -308,6 +374,7 @@
         let password = document.getElementById('adminPassword').value.trim();
         let cliente = document.getElementById('adminCliente').value.trim();
         let modelo = document.getElementById('adminModelo').value.trim();
+        let telefono = document.getElementById('adminTelefono').value.trim();
         let fecha = document.getElementById('adminFecha').value;
         let km = document.getElementById('adminKm').value.trim();
         let detalle = document.getElementById('adminDetalle').value.trim();
@@ -322,26 +389,85 @@
                 password: password || "1234",
                 cliente: cliente || "Cliente",
                 modelo: modelo || "Vehículo",
+                telefono: telefono || "",
                 historial: []
             };
         } else {
             if(password) baseDatosAutos[patente].password = password;
             if(cliente) baseDatosAutos[patente].cliente = cliente;
             if(modelo) baseDatosAutos[patente].modelo = modelo;
+            if(telefono) baseDatosAutos[patente].telefono = telefono;
         }
 
         baseDatosAutos[patente].historial.push({ fecha, km, detalle });
+        guardarEnStorage();
         alert("¡Trabajo guardado con éxito para la patente " + patente + "!");
         
-        // Limpiar campos
+        limpiarFormularioAdmin();
+        cambiarVista('listaAutos');
+    }
+
+    function limpiarFormularioAdmin() {
+        document.getElementById('adminModoEdicion').value = 'nuevo';
+        document.getElementById('tituloAdminForm').innerText = "Panel de Carga (Taller)";
         document.getElementById('adminPatente').value = '';
+        document.getElementById('adminPatente').disabled = false;
         document.getElementById('adminPassword').value = '';
         document.getElementById('adminCliente').value = '';
         document.getElementById('adminModelo').value = '';
+        document.getElementById('adminTelefono').value = '';
+        document.getElementById('adminFecha').valueAsDate = new Date();
         document.getElementById('adminKm').value = '';
         document.getElementById('adminDetalle').value = '';
-        
-        cambiarVista('principal');
+    }
+
+    function renderizarListaAutos() {
+        let keys = Object.keys(baseDatosAutos);
+        if (keys.length === 0) {
+            document.getElementById('tablaAutosContainer').innerHTML = `<p style="color: var(--text-muted); text-align: center; padding: 20px;">No hay vehículos registrados.</p>`;
+            return;
+        }
+
+        let html = `<table><thead><tr><th>Patente</th><th>Cliente</th><th>Modelo</th><th>Acciones</th></tr></thead><tbody>`;
+        keys.forEach(patente => {
+            let auto = baseDatosAutos[patente];
+            html += `<tr>
+                <td><span class="badge">${patente}</span></td>
+                <td>${auto.cliente}</td>
+                <td>${auto.modelo}</td>
+                <td>
+                    <button onclick="editarAuto('${patente}')" style="padding: 6px 10px; font-size: 0.8rem; margin: 0 2px;">Editar</button>
+                    <button onclick="eliminarAuto('${patente}')" class="btn-danger" style="padding: 6px 10px; font-size: 0.8rem; margin: 0 2px;">Eliminar</button>
+                </td>
+            </tr>`;
+        });
+        html += `</tbody></table>`;
+        document.getElementById('tablaAutosContainer').innerHTML = html;
+    }
+
+    function editarAuto(patente) {
+        let auto = baseDatosAutos[patente];
+        document.getElementById('adminModoEdicion').value = 'editar';
+        document.getElementById('tituloAdminForm').innerText = "Editar Vehículo / Agregar Trabajo";
+        document.getElementById('adminPatente').value = patente;
+        document.getElementById('adminPatente').disabled = true; 
+        document.getElementById('adminPassword').value = auto.password;
+        document.getElementById('adminCliente').value = auto.cliente;
+        document.getElementById('adminModelo').value = auto.modelo;
+        document.getElementById('adminTelefono').value = auto.telefono || '';
+        document.getElementById('adminFecha').valueAsDate = new Date();
+        document.getElementById('adminKm').value = '';
+        document.getElementById('adminDetalle').value = '';
+
+        cambiarVista('admin');
+    }
+
+    function eliminarAuto(patente) {
+        if(confirm(`¿Estás seguro de eliminar el historial completo del vehículo ${patente}?`)) {
+            delete baseDatosAutos[patente];
+            guardarEnStorage();
+            renderizarListaAutos();
+        }
     }
 </script>
 
