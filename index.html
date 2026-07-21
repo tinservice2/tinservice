@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tin Service - Historial Clínico Vehicular y Taller</title>
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: #151c2c;
+            --accent: #00d2ff;
+            --accent-gradient: linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%);
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border: #2a3650;
+            --success: #10b981;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            width: 100%;
+            max-width: 500px;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+            padding-top: 10px;
+        }
+        header h1 {
+            font-size: 2.2rem;
+            color: var(--accent);
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+        header p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border);
+            margin-bottom: 20px;
+        }
+        h2 {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: var(--text-main);
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 8px;
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            background: #0b0f19;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-main);
+            font-size: 1rem;
+        }
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        button {
+            width: 100%;
+            padding: 14px;
+            background: var(--accent-gradient);
+            color: #0b0f19;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            margin-top: 5px;
+        }
+        button:hover {
+            opacity: 0.9;
+        }
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            margin-top: 10px;
+        }
+        .btn-secondary:hover {
+            background: var(--border);
+            color: var(--text-main);
+        }
+        .hidden {
+            display: none !important;
+        }
+        .badge {
+            background: rgba(0, 210, 255, 0.15);
+            color: var(--accent);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 0.85rem;
+        }
+        th, td {
+            border: 1px solid var(--border);
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #0b0f19;
+            color: var(--accent);
+        }
+        .whatsapp-btn {
+            display: block;
+            text-align: center;
+            background-color: #25d366;
+            color: white;
+            text-decoration: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 700;
+            margin-top: 15px;
+        }
+        .info-box {
+            background: #0b0f19;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>⚙️ Tin Service</h1>
+        <p>Electrónica del Automóvil & Programación</p>
+    </header>
+
+    <!-- PANTALLA PRINCIPAL -->
+    <div id="vistaPrincipal" class="card">
+        <h2>Portal de Clientes y Taller</h2>
+        <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 0.9rem;">
+            Consultá el historial clínico de tu vehículo o ingresá como administrador del taller.
+        </p>
+        <button onclick="cambiarVista('cliente')" style="margin-bottom: 12px;">🚗 Consultar Historial de mi Auto</button>
+        <button onclick="cambiarVista('admin')" class="btn-secondary">🛠️ Panel de Taller (Administrador)</button>
+    </div>
+
+    <!-- VISTA LOGIN CLIENTE -->
+    <div id="vistaLoginCliente" class="card hidden">
+        <h2>Acceso de Clientes</h2>
+        <div class="form-group">
+            <label>Patente de tu vehículo (Usuario):</label>
+            <input type="text" id="loginPatente" placeholder="Ej: AF123ZZ" style="text-transform: uppercase;">
+        </div>
+        <div class="form-group">
+            <label>Contraseña:</label>
+            <input type="password" id="loginPassword" placeholder="Ingresá tu contraseña">
+        </div>
+        <button onclick="loginCliente()">Ingresar al Historial</button>
+        <button onclick="cambiarVista('principal')" class="btn-secondary">Volver al inicio</button>
+    </div>
+
+    <!-- VISTA HISTORIAL DEL CLIENTE -->
+    <div id="vistaResultadoCliente" class="card hidden">
+        <h2>Historial Clínico del Vehículo</h2>
+        <div class="info-box" id="infoAutoCliente"></div>
+        
+        <h3 style="font-size: 1rem; color: var(--accent); margin-bottom: 8px;">Trabajos Realizados:</h3>
+        <div style="overflow-x: auto;" id="tablaHistorialContainer"></div>
+
+        <a href="https://wa.me/?text=Hola%20Tin%20Service,%20quiero%20hacer%20una%20consulta%20sobre%20mi%20auto." target="_blank" class="whatsapp-btn">
+            💬 Consultar por WhatsApp
+        </a>
+        <button onclick="cambiarVista('cliente')" class="btn-secondary" style="margin-top: 10px;">Cerrar Sesión</button>
+    </div>
+
+    <!-- VISTA PANEL TALLER (ADMIN) -->
+    <div id="vistaAdmin" class="card hidden">
+        <h2>Panel de Carga (Taller)</h2>
+        <div class="form-group">
+            <label>Patente del Auto:</label>
+            <input type="text" id="adminPatente" placeholder="Ej: AF123ZZ" style="text-transform: uppercase;">
+        </div>
+        <div class="form-group">
+            <label>Contraseña para el Cliente:</label>
+            <input type="text" id="adminPassword" placeholder="Ej: 1234">
+        </div>
+        <div class="form-group">
+            <label>Nombre del Cliente:</label>
+            <input type="text" id="adminCliente" placeholder="Ej: Juan Pérez">
+        </div>
+        <div class="form-group">
+            <label>Marca y Modelo:</label>
+            <input type="text" id="adminModelo" placeholder="Ej: Volkswagen Gol 1.6">
+        </div>
+        <div class="form-group">
+            <label>Fecha del trabajo:</label>
+            <input type="date" id="adminFecha">
+        </div>
+        <div class="form-group">
+            <label>Kilometraje actual:</label>
+            <input type="text" id="adminKm" placeholder="Ej: 85.000 km">
+        </div>
+        <div class="form-group">
+            <label>Detalle del trabajo / Programación:</label>
+            <textarea id="adminDetalle" rows="3" placeholder="Ej: Escaneo computarizado, programación de llave y reparación de BCM."></textarea>
+        </div>
+        <button onclick="guardarTrabajo()">💾 Guardar en el Historial</button>
+        <button onclick="cambiarVista('principal')" class="btn-secondary">Volver al inicio</button>
+    </div>
+</div>
+
+<script>
+    // Base de datos de ejemplo en memoria
+    let baseDatosAutos = {
+        "AF123ZZ": {
+            password: "123",
+            cliente: "Martín Gómez",
+            modelo: "Peugeot 308 1.6",
+            historial: [
+                { fecha: "2026-03-10", km: "72.000 km", detalle: "Programación de llave con chip y clonación de telecomando." },
+                { fecha: "2026-06-05", km: "76.500 km", detalle: "Diagnóstico computarizado y reparación de tablero." }
+            ]
+        }
+    };
+
+    function cambiarVista(vista) {
+        document.getElementById('vistaPrincipal').classList.add('hidden');
+        document.getElementById('vistaLoginCliente').classList.add('hidden');
+        document.getElementById('vistaResultadoCliente').classList.add('hidden');
+        document.getElementById('vistaAdmin').classList.add('hidden');
+
+        if(vista === 'principal') {
+            document.getElementById('vistaPrincipal').classList.remove('hidden');
+        } else if(vista === 'cliente') {
+            document.getElementById('vistaLoginCliente').classList.remove('hidden');
+            document.getElementById('loginPatente').value = '';
+            document.getElementById('loginPassword').value = '';
+        } else if(vista === 'resultado') {
+            document.getElementById('vistaResultadoCliente').classList.remove('hidden');
+        } else if(vista === 'admin') {
+            document.getElementById('vistaAdmin').classList.remove('hidden');
+            // Poner fecha de hoy por defecto
+            document.getElementById('adminFecha').valueAsDate = new Date();
+        }
+    }
+
+    function loginCliente() {
+        let patente = document.getElementById('loginPatente').value.trim().toUpperCase();
+        let pass = document.getElementById('loginPassword').value.trim();
+        let auto = baseDatosAutos[patente];
+
+        if (auto && auto.password === pass) {
+            cambiarVista('resultado');
+            document.getElementById('infoAutoCliente').innerHTML = `
+                <div><strong>Propietario:</strong> ${auto.cliente}</div>
+                <div><strong>Vehículo:</strong> ${auto.modelo}</div>
+                <div><strong>Patente:</strong> <span class="badge">${patente}</span></div>
+            `;
+
+            let htmlTabla = `<table><thead><tr><th>Fecha</th><th>Km</th><th>Trabajo Realizado</th></tr></thead><tbody>`;
+            auto.historial.forEach(h => {
+                htmlTabla += `<tr><td>${h.fecha}</td><td>${h.km}</td><td>${h.detalle}</td></tr>`;
+            });
+            htmlTabla += `</tbody></table>`;
+            document.getElementById('tablaHistorialContainer').innerHTML = htmlTabla;
+        } else {
+            alert("Patente o contraseña incorrecta.\n(Prueba usar la patente de ejemplo: AF123ZZ y contraseña: 123)");
+        }
+    }
+
+    function guardarTrabajo() {
+        let patente = document.getElementById('adminPatente').value.trim().toUpperCase();
+        let password = document.getElementById('adminPassword').value.trim();
+        let cliente = document.getElementById('adminCliente').value.trim();
+        let modelo = document.getElementById('adminModelo').value.trim();
+        let fecha = document.getElementById('adminFecha').value;
+        let km = document.getElementById('adminKm').value.trim();
+        let detalle = document.getElementById('adminDetalle').value.trim();
+
+        if(!patente || !fecha || !detalle) {
+            alert("Por favor completá al menos la patente, la fecha y el detalle del trabajo.");
+            return;
+        }
+
+        if (!baseDatosAutos[patente]) {
+            baseDatosAutos[patente] = {
+                password: password || "1234",
+                cliente: cliente || "Cliente",
+                modelo: modelo || "Vehículo",
+                historial: []
+            };
+        } else {
+            if(password) baseDatosAutos[patente].password = password;
+            if(cliente) baseDatosAutos[patente].cliente = cliente;
+            if(modelo) baseDatosAutos[patente].modelo = modelo;
+        }
+
+        baseDatosAutos[patente].historial.push({ fecha, km, detalle });
+        alert("¡Trabajo guardado con éxito para la patente " + patente + "!");
+        
+        // Limpiar campos
+        document.getElementById('adminPatente').value = '';
+        document.getElementById('adminPassword').value = '';
+        document.getElementById('adminCliente').value = '';
+        document.getElementById('adminModelo').value = '';
+        document.getElementById('adminKm').value = '';
+        document.getElementById('adminDetalle').value = '';
+        
+        cambiarVista('principal');
+    }
+</script>
+
+</body>
+</html>
