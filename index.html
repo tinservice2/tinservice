@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Portal de clientes — Tin Service</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --asfalto: #24242A;
+    --asfalto-2: #2E2E36;
+    --chapa: #3A3A44;
+    --amarillo: #F2A93B;
+    --amarillo-oscuro: #7A5316;
+    --teal: #2F8F7A;
+    --teal-oscuro: #123B32;
+    --rojo: #D8543B;
+    --rojo-oscuro: #5E2416;
+    --hueso: #F3EFE6;
+    --hueso-tenue: #C9C5B8;
+    --linea: rgba(243,239,230,0.14);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--asfalto); color:var(--hueso);
+    font-family:'IBM Plex Sans', sans-serif;
+    min-height:100vh;
+  }
+  .marca{
+    display:flex; align-items:center; gap:14px;
+    padding:20px 28px; border-bottom:3px solid var(--amarillo);
+    background:repeating-linear-gradient(135deg, var(--asfalto-2) 0 18px, var(--chapa) 18px 36px);
+  }
+  .marca .tuerca{
+    width:40px;height:40px;border-radius:50%;
+    background:var(--amarillo); color:var(--asfalto);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Oswald',sans-serif; font-weight:700; font-size:20px;
+    flex-shrink:0;
+  }
+  .marca h1{
+    font-family:'Oswald',sans-serif; font-weight:600; letter-spacing:1px;
+    text-transform:uppercase; font-size:20px; margin:0;
+  }
+  .marca p{margin:2px 0 0; font-size:12px; color:var(--hueso-tenue); letter-spacing:2px; text-transform:uppercase;}
+  .wrap{max-width:760px; margin:0 auto; padding:32px 20px 60px;}
+
+  /* --- login --- */
+  .login-box{
+    max-width:400px; margin:40px auto 0;
+    background:var(--asfalto-2); border:1px solid var(--linea); border-radius:10px;
+    padding:28px;
+  }
+  .login-tabs{display:flex; gap:0; margin-bottom:22px; border-bottom:1px solid var(--linea);}
+  .login-tabs button{
+    flex:1; background:none; border:none; color:var(--hueso-tenue);
+    font-family:'Oswald',sans-serif; text-transform:uppercase; letter-spacing:1px; font-size:13px;
+    padding:10px 0; cursor:pointer; border-bottom:3px solid transparent;
+  }
+  .login-tabs button.activo{color:var(--amarillo); border-bottom-color:var(--amarillo);}
+  label{display:block; font-size:12px; color:var(--hueso-tenue); margin:14px 0 6px; letter-spacing:.5px;}
+  input, select, textarea{
+    width:100%; background:var(--asfalto); border:1px solid var(--linea); color:var(--hueso);
+    padding:10px 12px; border-radius:6px; font-size:14px; font-family:'IBM Plex Mono', monospace;
+  }
+  input:focus, select:focus, textarea:focus{outline:none; border-color:var(--amarillo);}
+  button.accion{
+    margin-top:18px; width:100%; background:var(--amarillo); color:var(--asfalto);
+    border:none; padding:12px; border-radius:6px; font-family:'Oswald',sans-serif;
+    font-weight:600; text-transform:uppercase; letter-spacing:1px; font-size:13px; cursor:pointer;
+  }
+  button.accion:active{transform:scale(0.98);}
+  button.secundario{
+    background:none; border:1px solid var(--linea); color:var(--hueso);
+  }
+  .error{color:var(--rojo); font-size:13px; margin-top:10px; min-height:16px;}
+  .nota-admin{font-size:11px; color:var(--hueso-tenue); margin-top:16px; line-height:1.6; border-top:1px dashed var(--linea); padding-top:12px;}
+
+  /* --- header sesion --- */
+  .topbar{display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;}
+  .topbar .quien{font-size:13px; color:var(--hueso-tenue);}
+  .topbar .quien b{color:var(--hueso);}
+  .salir{background:none;border:1px solid var(--linea); color:var(--hueso-tenue); padding:6px 14px; border-radius:6px; font-size:12px; cursor:pointer;}
+
+  /* --- admin tabs --- */
+  .admin-tabs{display:flex; gap:8px; margin-bottom:22px;}
+  .admin-tabs button{
+    background:var(--asfalto-2); border:1px solid var(--linea); color:var(--hueso-tenue);
+    padding:8px 16px; border-radius:6px; font-family:'Oswald',sans-serif; letter-spacing:.5px;
+    font-size:12px; text-transform:uppercase; cursor:pointer;
+  }
+  .admin-tabs button.activo{background:var(--amarillo); color:var(--asfalto); border-color:var(--amarillo);}
+
+  .panel{display:none;}
+  .panel.activo{display:block;}
+  .caja{background:var(--asfalto-2); border:1px solid var(--linea); border-radius:10px; padding:20px; margin-bottom:20px;}
+  .caja h3{font-family:'Oswald',sans-serif; margin:0 0 4px; font-size:15px; letter-spacing:.5px; text-transform:uppercase; color:var(--amarillo);}
+  .caja .sub{font-size:12px; color:var(--hueso-tenue); margin:0 0 4px;}
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:0 14px;}
+
+  /* --- ticket de trabajo --- */
+  .ticket{
+    position:relative; background:var(--asfalto-2); border:1px solid var(--linea);
+    border-left:5px solid var(--teal); border-radius:8px; padding:16px 18px; margin-bottom:14px;
+  }
+  .ticket.estado-en-proceso{border-left-color:var(--amarillo);}
+  .ticket.estado-presupuestado{border-left-color:var(--hueso-tenue);}
+  .ticket.estado-entregado{border-left-color:var(--teal);}
+  .ticket-top{display:flex; justify-content:space-between; align-items:flex-start; gap:10px;}
+  .ticket-fecha{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--hueso-tenue);}
+  .ticket-vehiculo{font-family:'Oswald',sans-serif; font-size:15px; letter-spacing:.5px;}
+  .estado-pill{
+    font-family:'IBM Plex Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:1px;
+    padding:4px 9px; border-radius:20px; white-space:nowrap;
+  }
+  .estado-pill.entregado{background:var(--teal-oscuro); color:#8fe0cc;}
+  .estado-pill.en-proceso{background:var(--amarillo-oscuro); color:#ffd991;}
+  .estado-pill.presupuestado{background:#44443f; color:var(--hueso-tenue);}
+  .ticket-desc{font-size:14px; margin:10px 0 6px; line-height:1.5;}
+  .ticket-repuestos{font-size:12px; color:var(--hueso-tenue); font-family:'IBM Plex Mono',monospace;}
+  .ticket-costo{margin-top:10px; text-align:right; font-family:'Oswald',sans-serif; font-size:16px; color:var(--amarillo);}
+  .vacio{color:var(--hueso-tenue); font-size:13px; text-align:center; padding:30px 0;}
+
+  .lista-clientes{display:flex; flex-direction:column; gap:8px;}
+  .fila-cliente{
+    display:flex; justify-content:space-between; align-items:center;
+    background:var(--asfalto); border:1px solid var(--linea); border-radius:6px; padding:10px 14px; font-size:13px;
+  }
+  .fila-cliente .u{font-family:'IBM Plex Mono',monospace; color:var(--amarillo);}
+</style>
+</head>
+<body>
+
+<div class="marca">
+  <div class="tuerca">T</div>
+  <div>
+    <h1>Tin Service</h1>
+    <p>Portal de clientes — taller de reparación y electrónica automotor</p>
+  </div>
+</div>
+
+<div class="wrap" id="app"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/uuid/9.0.1/uuidv4.min.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyAe8G61E5F_0TvV33QkSvKc4kxJiqfbgnw",
+  authDomain: "tin-service-ff8c1.firebaseapp.com",
+  databaseURL: "https://tin-service-ff8c1-default-rtdb.firebaseio.com",
+  projectId: "tin-service-ff8c1",
+  storageBucket: "tin-service-ff8c1.firebasestorage.app",
+  messagingSenderId: "820360924366",
+  appId: "1:820360924366:web:88473064b39312d373d49f"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+</script>
+<script>
+const app = document.getElementById('app');
+let sesion = null; // {tipo:'admin'} o {tipo:'cliente', usuario, nombre}
+
+async function getClientes(){
+  try{
+    const snap = await db.ref('clientes').once('value');
+    const val = snap.val() || {};
+    return Object.values(val);
+  } catch(e){ console.error(e); return []; }
+}
+async function agregarCliente(cliente){
+  await db.ref('clientes/' + cliente.usuario).set(cliente);
+}
+async function getTrabajos(){
+  try{
+    const snap = await db.ref('trabajos').once('value');
+    const val = snap.val() || {};
+    return Object.keys(val).map(id => ({id, ...val[id]}));
+  } catch(e){ console.error(e); return []; }
+}
+async function agregarTrabajo(trabajo){
+  await db.ref('trabajos').push(trabajo);
+}
+
+function estadoClase(e){
+  return e.toLowerCase().replace(/\s+/g,'-');
+}
+
+function renderLogin(){
+  app.innerHTML = `
+    <div class="login-box">
+      <div class="login-tabs">
+        <button id="tabCliente" class="activo">Cliente</button>
+        <button id="tabAdmin">Taller</button>
+      </div>
+      <div id="formLogin">
+        <label id="labelUser">Usuario</label>
+        <input id="loginUser" autocomplete="username" placeholder="usuario">
+        <label id="labelPass">Contraseña</label>
+        <input id="loginPass" type="password" autocomplete="current-password" placeholder="contraseña">
+        <button class="accion" id="btnEntrar">Ingresar</button>
+        <div class="error" id="loginError"></div>
+      </div>
+      <div class="nota-admin">
+        Los datos se guardan en Firebase (tenés que completar tu configuración en el código). Las contraseñas
+        no están encriptadas, así que evitá usar esto para datos sensibles más allá de nombre, patente y
+        trabajos realizados.
+      </div>
+    </div>
+  `;
+  let modo = 'cliente';
+  function actualizarLabels(){
+    if(modo === 'cliente'){
+      document.getElementById('labelUser').textContent = 'Patente del auto';
+      document.getElementById('labelPass').textContent = 'Nombre (como te lo dio el taller)';
+      document.getElementById('loginUser').placeholder = 'AB123CD';
+      document.getElementById('loginPass').placeholder = 'nombre';
+    } else {
+      document.getElementById('labelUser').textContent = 'Usuario';
+      document.getElementById('labelPass').textContent = 'Contraseña';
+      document.getElementById('loginUser').placeholder = 'usuario';
+      document.getElementById('loginPass').placeholder = 'contraseña';
+    }
+  }
+  document.getElementById('tabCliente').onclick = () => { modo='cliente'; document.getElementById('tabCliente').classList.add('activo'); document.getElementById('tabAdmin').classList.remove('activo'); actualizarLabels(); };
+  document.getElementById('tabAdmin').onclick = () => { modo='admin'; document.getElementById('tabAdmin').classList.add('activo'); document.getElementById('tabCliente').classList.remove('activo'); actualizarLabels(); };
+  actualizarLabels();
+
+  document.getElementById('btnEntrar').onclick = async () => {
+    const u = document.getElementById('loginUser').value.trim();
+    const p = document.getElementById('loginPass').value;
+    const err = document.getElementById('loginError');
+    err.textContent = '';
+    if(modo === 'admin'){
+      if(u === 'admin' && p === 'taller2026'){
+        sesion = {tipo:'admin'};
+        renderAdmin();
+      } else {
+        err.textContent = 'Usuario o contraseña de taller incorrectos.';
+      }
+    } else {
+      const clientes = await getClientes();
+      const uNorm = u.toUpperCase().replace(/\s+/g,'');
+      const c = clientes.find(c => c.usuario === uNorm && c.password.trim().toLowerCase() === p.trim().toLowerCase());
+      if(c){
+        sesion = {tipo:'cliente', usuario:c.usuario, nombre:c.nombre};
+        renderCliente();
+      } else {
+        err.textContent = 'Usuario o contraseña incorrectos.';
+      }
+    }
+  };
+}
+
+async function renderCliente(){
+  const clientes = await getClientes();
+  const yo = clientes.find(c => c.usuario === sesion.usuario);
+  const trabajos = (await getTrabajos()).filter(t => t.clienteUsuario === sesion.usuario)
+    .sort((a,b) => b.fecha.localeCompare(a.fecha));
+
+  app.innerHTML = `
+    <div class="topbar">
+      <div class="quien">Cliente: <b>${yo ? yo.nombre : sesion.usuario}</b>${yo && yo.vehiculo ? ' — ' + yo.vehiculo : ''}</div>
+      <button class="salir" id="btnSalir">Salir</button>
+    </div>
+    <div id="listaTicket"></div>
+  `;
+  document.getElementById('btnSalir').onclick = () => { sesion = null; renderLogin(); };
+
+  const cont = document.getElementById('listaTicket');
+  if(trabajos.length === 0){
+    cont.innerHTML = '<div class="vacio">Todavía no hay trabajos registrados en tu cuenta.</div>';
+  } else {
+    cont.innerHTML = trabajos.map(t => `
+      <div class="ticket estado-${estadoClase(t.estado)}">
+        <div class="ticket-top">
+          <div>
+            <div class="ticket-fecha">${t.fecha}</div>
+            <div class="ticket-vehiculo">${t.vehiculo || ''}</div>
+          </div>
+          <span class="estado-pill ${estadoClase(t.estado)}">${t.estado}</span>
+        </div>
+        <div class="ticket-desc">${t.descripcion}</div>
+        ${t.repuestos ? `<div class="ticket-repuestos">Repuestos: ${t.repuestos}</div>` : ''}
+        ${t.costo ? `<div class="ticket-costo">$ ${Number(t.costo).toLocaleString('es-AR')}</div>` : ''}
+      </div>
+    `).join('');
+  }
+}
+
+async function renderAdmin(){
+  app.innerHTML = `
+    <div class="topbar">
+      <div class="quien">Sesión: <b>Taller (admin)</b></div>
+      <button class="salir" id="btnSalir">Salir</button>
+    </div>
+    <div class="admin-tabs">
+      <button id="tabClientesBtn" class="activo">Clientes</button>
+      <button id="tabTrabajosBtn">Trabajos</button>
+    </div>
+    <div class="panel activo" id="panelClientes"></div>
+    <div class="panel" id="panelTrabajos"></div>
+  `;
+  document.getElementById('btnSalir').onclick = () => { sesion = null; renderLogin(); };
+  document.getElementById('tabClientesBtn').onclick = () => cambiarTab('Clientes');
+  document.getElementById('tabTrabajosBtn').onclick = () => cambiarTab('Trabajos');
+
+  function cambiarTab(nombre){
+    ['Clientes','Trabajos'].forEach(n => {
+      document.getElementById('tab'+n+'Btn').classList.toggle('activo', n===nombre);
+      document.getElementById('panel'+n).classList.toggle('activo', n===nombre);
+    });
+  }
+
+  await pintarPanelClientes();
+  await pintarPanelTrabajos();
+}
+
+async function pintarPanelClientes(){
+  const clientes = await getClientes();
+  const panel = document.getElementById('panelClientes');
+  panel.innerHTML = `
+    <div class="caja">
+      <h3>Nuevo cliente</h3>
+      <p class="sub">El cliente va a ingresar con la patente como usuario y su nombre como contraseña.</p>
+      <div class="grid2">
+        <div><label>Patente</label><input id="cPatente" placeholder="AB123CD"></div>
+        <div><label>Nombre</label><input id="cNombre" placeholder="Juan Pérez"></div>
+      </div>
+      <div class="grid2">
+        <div><label>Vehículo (marca y modelo)</label><input id="cVehiculo" placeholder="Ford Fiesta"></div>
+        <div><label>Teléfono (opcional)</label><input id="cTelefono" placeholder="011 5555-5555"></div>
+      </div>
+      <button class="accion" id="btnCrearCliente">Crear cliente</button>
+      <div class="error" id="clienteError"></div>
+    </div>
+    <div class="caja">
+      <h3>Clientes registrados (${clientes.length})</h3>
+      <div class="lista-clientes" id="listaClientes"></div>
+    </div>
+  `;
+  const lista = document.getElementById('listaClientes');
+  lista.innerHTML = clientes.length === 0
+    ? '<div class="vacio">Todavía no creaste ningún cliente.</div>'
+    : clientes.map(c => `<div class="fila-cliente"><span>${c.nombre} — ${c.vehiculo||'sin vehículo'}</span><span class="u">${c.usuario}</span></div>`).join('');
+
+  document.getElementById('btnCrearCliente').onclick = async () => {
+    const nombre = document.getElementById('cNombre').value.trim();
+    const patente = document.getElementById('cPatente').value.trim();
+    const vehiculo = document.getElementById('cVehiculo').value.trim();
+    const telefono = document.getElementById('cTelefono').value.trim();
+    const err = document.getElementById('clienteError');
+    if(!nombre || !patente){
+      err.textContent = 'Completá al menos la patente y el nombre.'; return;
+    }
+    const usuario = patente.toUpperCase().replace(/\s+/g,'');
+    const password = nombre;
+    const actuales = await getClientes();
+    if(actuales.some(c => c.usuario === usuario)){
+      err.textContent = 'Ya hay un cliente cargado con esa patente.'; return;
+    }
+    await agregarCliente({usuario, password, nombre, vehiculo, telefono, patente: usuario});
+    await pintarPanelClientes();
+    await pintarPanelTrabajos();
+  };
+}
+
+async function pintarPanelTrabajos(){
+  const clientes = await getClientes();
+  const trabajos = (await getTrabajos()).sort((a,b) => b.fecha.localeCompare(a.fecha));
+  const panel = document.getElementById('panelTrabajos');
+  panel.innerHTML = `
+    <div class="caja">
+      <h3>Nuevo trabajo</h3>
+      <label>Cliente</label>
+      <select id="tCliente">
+        <option value="">Elegí un cliente...</option>
+        ${clientes.map(c => `<option value="${c.usuario}">${c.nombre} (${c.usuario})</option>`).join('')}
+      </select>
+      <div class="grid2">
+        <div><label>Fecha</label><input id="tFecha" type="date"></div>
+        <div><label>Estado</label>
+          <select id="tEstado">
+            <option>Presupuestado</option>
+            <option>En proceso</option>
+            <option>Entregado</option>
+          </select>
+        </div>
+      </div>
+      <label>Descripción del trabajo</label>
+      <textarea id="tDescripcion" rows="3" placeholder="Cambio de correa de distribución, revisión de frenos..."></textarea>
+      <div class="grid2">
+        <div><label>Repuestos (opcional)</label><input id="tRepuestos" placeholder="Correa, bujías"></div>
+        <div><label>Costo (opcional)</label><input id="tCosto" type="number" placeholder="45000"></div>
+      </div>
+      <button class="accion" id="btnCrearTrabajo">Registrar trabajo</button>
+      <div class="error" id="trabajoError"></div>
+    </div>
+    <div class="caja">
+      <h3>Historial (${trabajos.length})</h3>
+      <div id="listaTrabajosAdmin"></div>
+    </div>
+  `;
+  const lista = document.getElementById('listaTrabajosAdmin');
+  lista.innerHTML = trabajos.length === 0 ? '<div class="vacio">Todavía no hay trabajos cargados.</div>' :
+    trabajos.map(t => {
+      const cli = clientes.find(c => c.usuario === t.clienteUsuario);
+      return `
+      <div class="ticket estado-${estadoClase(t.estado)}">
+        <div class="ticket-top">
+          <div>
+            <div class="ticket-fecha">${t.fecha}</div>
+            <div class="ticket-vehiculo">${cli ? cli.nombre : t.clienteUsuario} — ${t.vehiculo || (cli?cli.vehiculo:'')} (${t.clienteUsuario})</div>
+          </div>
+          <span class="estado-pill ${estadoClase(t.estado)}">${t.estado}</span>
+        </div>
+        <div class="ticket-desc">${t.descripcion}</div>
+        ${t.repuestos ? `<div class="ticket-repuestos">Repuestos: ${t.repuestos}</div>` : ''}
+        ${t.costo ? `<div class="ticket-costo">$ ${Number(t.costo).toLocaleString('es-AR')}</div>` : ''}
+      </div>`;
+    }).join('');
+
+  document.getElementById('btnCrearTrabajo').onclick = async () => {
+    const clienteUsuario = document.getElementById('tCliente').value;
+    const fecha = document.getElementById('tFecha').value;
+    const estado = document.getElementById('tEstado').value;
+    const descripcion = document.getElementById('tDescripcion').value.trim();
+    const repuestos = document.getElementById('tRepuestos').value.trim();
+    const costo = document.getElementById('tCosto').value;
+    const err = document.getElementById('trabajoError');
+    if(!clienteUsuario || !fecha || !descripcion){
+      err.textContent = 'Elegí un cliente, una fecha y cargá la descripción.'; return;
+    }
+    const cli = clientes.find(c => c.usuario === clienteUsuario);
+    await agregarTrabajo({
+      clienteUsuario, fecha, estado, descripcion, repuestos, costo,
+      vehiculo: cli ? cli.vehiculo : ''
+    });
+    await pintarPanelTrabajos();
+  };
+}
+
+renderLogin();
+</script>
+</body>
+</html>
